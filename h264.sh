@@ -371,7 +371,6 @@ if [[ -n "$phls" ]] || [[ -n "$psize" ]]; then
             -b:a "$target_audio_bitrate_kbit_s"k \
             -ar 44100 \
             -ac 2 \
-            "${output_flags[@]}" \
             "${pass2_flags[@]}" \
             "${output_filename[@]}"
     else
@@ -389,7 +388,6 @@ if [[ -n "$phls" ]] || [[ -n "$psize" ]]; then
             -b:v "$target_video_bitrate_kbit_s"k \
             -pass 1 \
             -an \
-            "${output_flags[@]}" \
             "${pass1_flags[@]}" \
             /dev/null \
         && ffmpeg -hide_banner \
@@ -411,7 +409,6 @@ if [[ -n "$phls" ]] || [[ -n "$psize" ]]; then
             -b:a "$target_audio_bitrate_kbit_s"k \
             -ar 44100 \
             -ac 2 \
-            "${output_flags[@]}" \
             "${pass2_flags[@]}" \
             "${output_filename[@]}"
 
