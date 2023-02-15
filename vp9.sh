@@ -256,7 +256,7 @@ if [[ -n "$pfilter" ]]; then
     ffmpeg_filter="$pfilter,$ffmpeg_filter"
 fi
 
-vp9opts=("-c:v" "libvpx-vp9" "-deadline" "best" "-pix_fmt" "yuv420p")
+vp9opts=("-c:v" "libvpx-vp9" "-deadline" "good" "-pix_fmt" "yuv420p")
 
 globalopts=()
 globalopts+=("-f" "webm")
@@ -306,7 +306,7 @@ if [[ -n "$psize" ]]; then
         exit 1
     fi
 
-    vp9opts+=("-b:v" "$target_video_bitrate_kbit_s")
+    vp9opts+=("-b:v" "${target_video_bitrate_kbit_s}k")
 
 else
     #crf 30
