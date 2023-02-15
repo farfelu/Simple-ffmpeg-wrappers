@@ -256,7 +256,7 @@ if [[ -n "$pfilter" ]]; then
     ffmpeg_filter="$pfilter,$ffmpeg_filter"
 fi
 
-av1opts=("-c:v" "libsvtav1" "-preset" "8" "-pix_fmt" "yuv420p")
+av1opts=("-c:v" "libsvtav1" "-preset" "7" "-pix_fmt" "yuv420p")
 
 globalopts=()
 globalopts+=("-f" "webm")
@@ -312,12 +312,48 @@ if [[ -n "$psize" ]]; then
         target_video_bitrate_kbit_s=3000
     fi
 
-    pass1_flags=()
-    pass2_flags=()
+# 2 pass seems to not work for now?
+#    pass1_flags=("-svtav1-params" "pass=1:passes=2")
+#    pass2_flags=("-svtav1-params" "pass=2:passes=2")
     output_filename=("${ffmpeg_output}.webm")
 
 
-    ffmpeg -hide_banner \
+#    ffmpeg -hide_banner \
+#        -y \
+#        $ffmpeg_ss \
+#        -i "$ffmpeg_input" \
+#        $ffmpeg_extra_params \
+#        $ffmpeg_ssaccurate \
+#        $ffmpeg_to \
+#        -vf "$ffmpeg_filter" \
+#        $ffmpeg_filter_complex \
+#        "${globalopts[@]}" \
+#        "${av1opts[@]}" \
+#        -b:v "$target_video_bitrate_kbit_s"k \
+#        -an \
+#        "${pass1_flags[@]}" \
+#        /dev/null \
+#    && ffmpeg -hide_banner \
+#        -y \
+#        $ffmpeg_ss \
+#        -i "$ffmpeg_input" \
+#        $ffmpeg_extra_params \
+#        $ffmpeg_ssaccurate \
+#        $ffmpeg_to \
+#        -vf "$ffmpeg_filter" \
+#        $ffmpeg_filter_complex \
+#        "${globalopts[@]}" \
+#        "${av1opts[@]}" \
+#        -b:v "$target_video_bitrate_kbit_s"k \
+#        $ffmpeg_skip_audio \
+#        $ffmpeg_boost_audio \
+#        "${pass2_flags[@]}" \
+#        "${output_filename[@]}"
+
+#    rm ffmpeg2pass-0.log > /dev/null
+#    rm svtav1_2pass.log > /dev/null
+
+ffmpeg -hide_banner \
         -y \
         $ffmpeg_ss \
         -i "$ffmpeg_input" \
@@ -329,31 +365,9 @@ if [[ -n "$psize" ]]; then
         "${globalopts[@]}" \
         "${av1opts[@]}" \
         -b:v "$target_video_bitrate_kbit_s"k \
-        -pass 1 \
-        -an \
-        "${output_flags[@]}" \
-        "${pass1_flags[@]}" \
-        /dev/null \
-    && ffmpeg -hide_banner \
-        -y \
-        $ffmpeg_ss \
-        -i "$ffmpeg_input" \
-        $ffmpeg_extra_params \
-        $ffmpeg_ssaccurate \
-        $ffmpeg_to \
-        -vf "$ffmpeg_filter" \
-        $ffmpeg_filter_complex \
-        "${globalopts[@]}" \
-        "${av1opts[@]}" \
-        -b:v "$target_video_bitrate_kbit_s"k \
-        -pass 2 \
         $ffmpeg_skip_audio \
         $ffmpeg_boost_audio \
-        "${output_flags[@]}" \
-        "${pass2_flags[@]}" \
         "${output_filename[@]}"
-
-    rm ffmpeg2pass-0.log > /dev/null
 
     echo Target Bitrate: $target_video_bitrate_kbit_s
     echo Before: `stat --printf="%s" "$ffmpeg_input" | numfmt --to=iec` After: `stat --printf="%s" "${ffmpeg_output}.webm" | numfmt --to=iec`
