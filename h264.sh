@@ -353,7 +353,7 @@ if [[ -n "$phls" ]] || [[ -n "$psize" ]]; then
 
 
     if [[ -n "$pcuda" ]]; then
-        ffmpeg \
+        ffmpeg -hide_banner \
             -y \
             $ffmpeg_ss \
             -i "$ffmpeg_input" \
@@ -375,7 +375,7 @@ if [[ -n "$phls" ]] || [[ -n "$psize" ]]; then
             "${pass2_flags[@]}" \
             "${output_filename[@]}"
     else
-        ffmpeg \
+        ffmpeg -hide_banner \
             -y \
             $ffmpeg_ss \
             -i "$ffmpeg_input" \
@@ -392,7 +392,7 @@ if [[ -n "$phls" ]] || [[ -n "$psize" ]]; then
             "${output_flags[@]}" \
             "${pass1_flags[@]}" \
             /dev/null \
-        && ffmpeg \
+        && ffmpeg -hide_banner \
             -y \
             $ffmpeg_ss \
             -i "$ffmpeg_input" \
@@ -415,8 +415,8 @@ if [[ -n "$phls" ]] || [[ -n "$psize" ]]; then
             "${pass2_flags[@]}" \
             "${output_filename[@]}"
 
-            rm ffmpeg2pass-0.log > /dev/null
-            rm ffmpeg2pass-0.log.mbtree > /dev/null
+        rm ffmpeg2pass-0.log > /dev/null
+        rm ffmpeg2pass-0.log.mbtree > /dev/null
     fi
 
     echo Target Bitrate: $target_video_bitrate_kbit_s
@@ -442,7 +442,7 @@ else
     globalopts+=("-ac" "2")
 
     if [[ -n "$pcuda" ]]; then
-        ffmpeg \
+        ffmpeg -hide_banner \
             -y \
             $ffmpeg_ss \
             -i "$ffmpeg_input" \
@@ -457,7 +457,7 @@ else
             $ffmpeg_boost_audio \
             "${ffmpeg_output}.mp4"
     else
-        ffmpeg \
+        ffmpeg -hide_banner \
             -y \
             $ffmpeg_ss \
             -i "$ffmpeg_input" \
