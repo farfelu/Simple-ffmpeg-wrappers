@@ -6,7 +6,7 @@ Because who can remember all the ffmpeg parameters?
 `ffmpeg`, `ffprobe`, `bc`, `getopt`, `stat`, `numfmt`
 
 ```
-h264.sh -i INFILE [-s FILESIZE] [-f TIMESTAMP] [-t TIMESTAMP] [--subs] [--amix] [--noaudio] [--crop <"16:9"|"21:9"|CROPSTRING>] [--downscale] [--hls] [--seekaccurate] [--cuda] [--filter "filterstring"] [--params "parameters"] [OUTFILE]
+h264.sh -i INFILE [-s FILESIZE] [-f TIMESTAMP] [-t TIMESTAMP] [--subs] [--amix] [--noaudio] [--crop <"16:9"|"21:9"|CROPSTRING>] [--downscale] [--hls] [--seekaccurate] [--cuda] [--lossless] [--filter "filterstring"] [--params "parameters"] [OUTFILE]
 
 required arguments:
 -i, --input                        input file
@@ -25,6 +25,7 @@ optional arguments:
 --hls                              change output to HLS playlist with chunks
 --seekaccurate                     accurate seeking (seek after input, only required on very long videos)
 --cuda                             encode with nvidia cuda
+--lossless                         encode lossless with ultrafast preset
 --filter                           additional ffmpeg filter parameters
 --params                           additional ffmpeg parameters
 -o, --output                       output file. defaults to inputfile with '-d' added at the end

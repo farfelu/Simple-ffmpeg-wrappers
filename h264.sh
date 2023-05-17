@@ -17,7 +17,7 @@ fi
 
 
 show_help() {
-    echo "${0##*/} -i INFILE [-s FILESIZE] [-f TIMESTAMP] [-t TIMESTAMP] [--subs] [--amix] [--noaudio] [--crop <\"16:9\"|\"21:9\"|CROPSTRING>] [--downscale] [--hls] [--seekaccurate] [--cuda] [--filter \"filterstring\"] [--params \"parameters\"] [OUTFILE]"
+    echo "${0##*/} -i INFILE [-s FILESIZE] [-f TIMESTAMP] [-t TIMESTAMP] [--subs] [--amix] [--noaudio] [--crop <\"16:9\"|\"21:9\"|CROPSTRING>] [--downscale] [--hls] [--seekaccurate] [--cuda] [--lossless] [--filter \"filterstring\"] [--params \"parameters\"] [OUTFILE]"
     echo
     echo "required arguments:"
     echo "-i, --input                        input file"
@@ -36,6 +36,7 @@ show_help() {
     echo "--hls                              change output to HLS playlist with chunks"
     echo "--seekaccurate                     accurate seeking (seek after input)"
     echo "--cuda                             encode with nvidia cuda"
+    echo "--lossless                         encode lossless with ultrafast preset"
     echo "--filter                           additional ffmpeg filter parameters"
     echo "--params                           additional ffmpeg parameters"
     echo "-o, --output                       output file. defaults to inputfile with '-d' added at the end"
@@ -47,7 +48,7 @@ if [[ $# -eq 0 ]]; then
 fi
 
 OPTIONS=s:f:t:o:i:h
-LONGOPTS=size:,from:,to:,output:,input:,help,subs,amix,noaudio,boostaudio,crop:,hls,seekaccurate,cuda,filter:,params:,downscale
+LONGOPTS=size:,from:,to:,output:,input:,help,subs,amix,noaudio,boostaudio,crop:,hls,seekaccurate,cuda,lossless,filter:,params:,downscale
 
 # -regarding ! and PIPESTATUS see above
 # -temporarily store output to be able to check for errors
@@ -77,6 +78,7 @@ pinput=
 phls=
 pseekaccurate=
 pcuda=
+plossless=
 pparams=
 
 # now enjoy the options in order and nicely split until we see --
@@ -128,6 +130,10 @@ while true; do
             ;;
         --cuda)
             pcuda=y
+            shift
+            ;;
+        --lossless)
+            plossless=y
             shift
             ;;
         --filter)
@@ -273,6 +279,10 @@ x264opts=("-c:v" "libx264" "-preset" "veryslow" "-pix_fmt" "yuv420p")
 cudaopts=("-c:v" "h264_nvenc" "-profile:v" "high" "-pixel_format" "yuv420p" "-preset:v" "p7" "-tune:v" "hq")
 
 if [[ -n "$phls" ]] || [[ -n "$psize" ]]; then
+    if [[ -n "$plossless" ]]; then
+        echo "Lossless not supported with --size or --hls"
+        exit 0
+    fi
 
     if [[ -n "$psize" ]]; then
         # ffmpeg bitrate constrained
@@ -424,19 +434,32 @@ if [[ -n "$phls" ]] || [[ -n "$psize" ]]; then
 else
     #ffmpeg crf 21
 
-    cudaopts+=("-rc:v" "vbr")
-    cudaopts+=("-cq:v" "24")
-    cudaopts+=("-b:v" "0")
+    if [[ -n "$plossless" ]]; then
+        if [[ -n "$pcuda" ]]; then
+            echo "Lossless not supported with --cuda"
+            exit 0
+        fi
 
-    x264opts+=("-crf" "21")
+        x264opts+=("-preset" "ultrafast")
+        x264opts+=("-qp" "0")
 
-    globalopts+=("-f" "mp4")
-    globalopts+=("-movflags")
-    globalopts+=("+faststart")
-    globalopts+=("-c:a" "aac")
-    globalopts+=("-b:a" "128k")
-    globalopts+=("-ar" "44100")
-    globalopts+=("-ac" "2")
+        globalopts+=("-f" "mp4")
+        globalopts+=("-c:a" "copy")
+    else
+        cudaopts+=("-rc:v" "vbr")
+        cudaopts+=("-cq:v" "24")
+        cudaopts+=("-b:v" "0")
+
+        x264opts+=("-crf" "21")
+
+        globalopts+=("-f" "mp4")
+        globalopts+=("-movflags")
+        globalopts+=("+faststart")
+        globalopts+=("-c:a" "aac")
+        globalopts+=("-b:a" "128k")
+        globalopts+=("-ar" "44100")
+        globalopts+=("-ac" "2")
+    fi
 
     if [[ -n "$pcuda" ]]; then
         ffmpeg -hide_banner \
